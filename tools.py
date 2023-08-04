@@ -17,7 +17,7 @@ def check_ip(ip):
 		for i in ip:
 			if i < 0 or i > 255:
 				return False
-	else: 
+	else:
 		return False
 	return True
 	

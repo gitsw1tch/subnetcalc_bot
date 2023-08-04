@@ -1,4 +1,5 @@
 import telebot
+from telebot.types import ReplyKeyboardRemove
 import tools
 from tools import get_str_from as gsf
 from configs import TOKEN
@@ -6,20 +7,25 @@ from configs import TOKEN
 
 bot = telebot.TeleBot(TOKEN)
 
-text_get_ip = 'Enter IP address (i.e. 192.168.0.1)'
+text_get_ip = 'Enter IPv4 address (e.g. 192.168.0.1)'
 text_get_mask = 'Choose subnet mask'
+sticker_id = 'CAACAgIAAxkBAAIBymTMyI_lfWz2LT977PakyA5Z-i4OAAIVJwACgMdoSUe7KZksX_BLLwQ'
 
 temp = {} #{message.from_user.id: {'ip': [1,1,1,1]} -> save requested ip for next handler 
 
 @bot.message_handler(commands = ['start'])
 def start(message):
-	bot.send_message(message.chat.id, text_get_ip)
-
+	bot.send_message(message.chat.id, text_get_ip, reply_markup = ReplyKeyboardRemove())
+	
 @bot.message_handler(content_types = ['text'])
 def get_ip(message):
 	try:
-		ip = message.text.split('.')    #'1.1.1.1' -> ['1', '1', '1', '1']
-		ip = list(map(int, ip))         #['1', '1', '1', '1'] -> [1, 1, 1, 1]
+		ip = message.text.split('.')    		#'1.1.1.1' -> ['1', '1', '1', '1']
+		print(ip)
+		ip = list(map(int, ip))         		#['1', '1', '1', '1'] -> [1, 1, 1, 1]
+		print(ip)
+		print(len(ip))
+		print(tools.check_ip(ip))
 		if tools.check_ip(ip):
 			request_ip = {message.from_user.id: {'ip': ip}}
 			temp.update(request_ip)
@@ -27,8 +33,10 @@ def get_ip(message):
 			bot.register_next_step_handler(msg, get_mask)	
 		else:
 			bot.reply_to(message, 'Error! ' + text_get_ip)
+			bot.send_sticker(message.chat.id, sticker_id)
 	except Exception:
 		bot.reply_to(message, 'Error! ' + text_get_ip)
+		bot.send_sticker(message.chat.id, sticker_id)
 	
 def get_mask(message):
 	try:
@@ -45,11 +53,14 @@ def get_mask(message):
 						'Broadcast Address: {}\n').format(gsf(ip), gsf(mask), gsf(network_addr), gsf(broadcast_addr))
 			bot.send_message(message.chat.id, content)
 			temp.pop(message.from_user.id) #clear temp
+			bot.send_message(message.chat.id, text_get_ip, reply_markup = ReplyKeyboardRemove())
 		else:
 			msg = bot.reply_to(message, 'Error! ' + text_get_mask, reply_markup = tools.get_mask_markup())
 			bot.register_next_step_handler(msg, get_mask)
+			bot.send_sticker(message.chat.id, sticker_id)
 	except Exception:
 		msg = bot.reply_to(message, 'Error! ' + text_get_mask, reply_markup = tools.get_mask_markup())
 		bot.register_next_step_handler(msg, get_mask)
+		bot.send_sticker(message.chat.id, sticker_id)
 		
 bot.infinity_polling()
