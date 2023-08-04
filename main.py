@@ -21,11 +21,7 @@ def start(message):
 def get_ip(message):
 	try:
 		ip = message.text.split('.')    		#'1.1.1.1' -> ['1', '1', '1', '1']
-		print(ip)
 		ip = list(map(int, ip))         		#['1', '1', '1', '1'] -> [1, 1, 1, 1]
-		print(ip)
-		print(len(ip))
-		print(tools.check_ip(ip))
 		if tools.check_ip(ip):
 			request_ip = {message.from_user.id: {'ip': ip}}
 			temp.update(request_ip)
