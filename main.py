@@ -9,7 +9,7 @@ bot = telebot.TeleBot(TOKEN)
 text_get_ip = 'Enter IP address (i.e. 192.168.0.1)'
 text_get_mask = 'Choose subnet mask'
 
-temp = {} #{message.from_user.id: {'ip': iplist} -> to save ip in next handler
+temp = {} #{message.from_user.id: {'ip': iplist} -> to save ip for next handler
 
 @bot.message_handler(commands = ['start'])
 def start(message):
